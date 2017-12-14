@@ -1,0 +1,156 @@
+diff -Naur newlib-1.20.0/config.sub newlib-1.20.0-TextOS/config.sub
+--- newlib-1.20.0/config.sub	2011-11-02 01:56:53.000000000 +0100
++++ newlib-1.20.0-TextOS/config.sub	2012-12-20 16:38:45.000000000 +0100
+@@ -1333,7 +1333,7 @@
+ 	      | -hpux* | -unos* | -osf* | -luna* | -dgux* | -auroraux* | -solaris* \
+ 	      | -sym* | -kopensolaris* \
+ 	      | -amigaos* | -amigados* | -msdos* | -newsos* | -unicos* | -aof* \
+-	      | -aos* | -aros* \
++	      | -aos* | -aros* | -TextOS* \
+ 	      | -nindy* | -vxsim* | -vxworks* | -ebmon* | -hms* | -mvs* \
+ 	      | -clix* | -riscos* | -uniplus* | -iris* | -rtu* | -xenix* \
+ 	      | -hiux* | -386bsd* | -knetbsd* | -mirbsd* | -netbsd* \
+diff -Naur newlib-1.20.0/newlib/configure.host newlib-1.20.0-TextOS/newlib/configure.host
+--- newlib-1.20.0/newlib/configure.host	2011-11-29 07:33:48.000000000 +0100
++++ newlib-1.20.0-TextOS/newlib/configure.host	2012-12-20 16:38:45.000000000 +0100
+@@ -406,6 +406,12 @@
+   h8500-*-elf*)
+ 	sys_dir=h8500hms
+ 	;;
++  i[3-7]86-*-TextOS*)
++	sys_dir=TextOS
++   # __NETBSD_SYSCALLS and _ELIX_LEVEL are to allow glob to compile; we don't have getpwnam and related functions
++	newlib_cflags="${newlib_cflags} -DMISSING_SYSCALL_NAMES -D__DYNAMIC_REENT__ -DHAVE_NANOSLEEP -D__NETBSD_SYSCALLS -D_ELIX_LEVEL=3 -O0 -gstabs+"
++	posix_dir=posix
++	;;
+   i[34567]86-*-rdos*)
+ 	sys_dir=rdos
+ 	newlib_cflags="${newlib_cflags} -DMISSING_SYSCALL_NAMES"
+diff -Naur newlib-1.20.0/newlib/libc/machine/i386/setjmp.S newlib-1.20.0-TextOS/newlib/libc/machine/i386/setjmp.S
+--- newlib-1.20.0/newlib/libc/machine/i386/setjmp.S	2010-11-16 18:52:21.000000000 +0100
++++ newlib-1.20.0-TextOS/newlib/libc/machine/i386/setjmp.S	2012-12-20 16:39:16.000000000 +0100
+@@ -75,7 +75,7 @@
+ 
+ 	movl	24(edi),ebp
+ 
+-       __CLI
++/*       __CLI */
+ 	movl	28(edi),esp
+ 	
+ 	pushl	32(edi)	
+@@ -86,6 +86,6 @@
+ 	movl	12(edi),edx
+ 	movl	16(edi),esi
+ 	movl	20(edi),edi
+-       __STI
++/*       __STI */
+ 
+ 	ret
+diff -Naur newlib-1.20.0/newlib/libc/sys/configure newlib-1.20.0-TextOS/newlib/libc/sys/configure
+--- newlib-1.20.0/newlib/libc/sys/configure	2011-12-19 23:03:37.000000000 +0100
++++ newlib-1.20.0-TextOS/newlib/libc/sys/configure	2012-12-20 16:38:45.000000000 +0100
+@@ -789,6 +789,7 @@
+ arm
+ d10v
+ decstation
++TextOS
+ h8300hms
+ h8500hms
+ linux
+@@ -11435,7 +11436,7 @@
+   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
+   lt_status=$lt_dlunknown
+   cat > conftest.$ac_ext <<_LT_EOF
+-#line 11438 "configure"
++#line 11439 "configure"
+ #include "confdefs.h"
+ 
+ #if HAVE_DLFCN_H
+@@ -11541,7 +11542,7 @@
+   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
+   lt_status=$lt_dlunknown
+   cat > conftest.$ac_ext <<_LT_EOF
+-#line 11544 "configure"
++#line 11545 "configure"
+ #include "confdefs.h"
+ 
+ #if HAVE_DLFCN_H
+@@ -11794,6 +11795,8 @@
+  ;;
+ 	decstation) subdirs="$subdirs decstation"
+  ;;
++	TextOS) subdirs="$subdirs TextOS"
++ ;;
+ 	h8300hms) subdirs="$subdirs h8300hms"
+  ;;
+ 	h8500hms) subdirs="$subdirs h8500hms"
+diff -Naur newlib-1.20.0/newlib/libc/sys/configure.in newlib-1.20.0-TextOS/newlib/libc/sys/configure.in
+--- newlib-1.20.0/newlib/libc/sys/configure.in	2010-02-24 21:59:55.000000000 +0100
++++ newlib-1.20.0-TextOS/newlib/libc/sys/configure.in	2012-12-20 16:38:45.000000000 +0100
+@@ -27,6 +27,7 @@
+ 	arm) AC_CONFIG_SUBDIRS(arm) ;;
+ 	d10v) AC_CONFIG_SUBDIRS(d10v) ;;
+ 	decstation) AC_CONFIG_SUBDIRS(decstation) ;;
++	TextOS) AC_CONFIG_SUBDIRS(TextOS) ;;
+ 	h8300hms) AC_CONFIG_SUBDIRS(h8300hms) ;;
+ 	h8500hms) AC_CONFIG_SUBDIRS(h8500hms) ;;
+ 	linux) AC_CONFIG_SUBDIRS(linux) ;;
+--- newlib-1.20.0/newlib/libc/posix/Makefile.in	2013-01-01 15:37:06.000000000 +0100
++++ newlib-1.20.0/newlib/libc/posix/Makefile.in	2013-01-01 15:37:41.000000000 +0100
+@@ -58,7 +58,6 @@
+ am__objects_1 = lib_a-closedir.$(OBJEXT) lib_a-collate.$(OBJEXT) \
+ 	lib_a-collcmp.$(OBJEXT) lib_a-creat.$(OBJEXT) \
+ 	lib_a-fnmatch.$(OBJEXT) lib_a-glob.$(OBJEXT) \
+-	lib_a-_isatty.$(OBJEXT) lib_a-isatty.$(OBJEXT) \
+ 	lib_a-opendir.$(OBJEXT) lib_a-readdir.$(OBJEXT) \
+ 	lib_a-readdir_r.$(OBJEXT) lib_a-regcomp.$(OBJEXT) \
+ 	lib_a-regerror.$(OBJEXT) lib_a-regexec.$(OBJEXT) \
+@@ -84,7 +83,7 @@
+ LTLIBRARIES = $(noinst_LTLIBRARIES)
+ libposix_la_LIBADD =
+ am__objects_6 = closedir.lo collate.lo collcmp.lo creat.lo fnmatch.lo \
+-	glob.lo _isatty.lo isatty.lo opendir.lo readdir.lo \
++	glob.lo opendir.lo readdir.lo \
+ 	readdir_r.lo regcomp.lo regerror.lo regexec.lo regfree.lo \
+ 	rewinddir.lo sleep.lo usleep.lo telldir.lo
+ am__objects_7 = scandir.lo seekdir.lo
+@@ -269,7 +268,7 @@
+ INCLUDES = $(NEWLIB_CFLAGS) $(CROSS_CFLAGS) $(TARGET_CFLAGS)
+ GENERAL_SOURCES = \
+ 	closedir.c collate.c collcmp.c creat.c \
+-	fnmatch.c glob.c _isatty.c isatty.c \
++	fnmatch.c glob.c \
+ 	opendir.c readdir.c readdir_r.c \
+ 	regcomp.c regerror.c regexec.c regfree.c \
+ 	rewinddir.c sleep.c usleep.c \
+@@ -409,18 +408,6 @@
+ lib_a-glob.obj: glob.c
+ 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-glob.obj `if test -f 'glob.c'; then $(CYGPATH_W) 'glob.c'; else $(CYGPATH_W) '$(srcdir)/glob.c'; fi`
+ 
+-lib_a-_isatty.o: _isatty.c
+-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-_isatty.o `test -f '_isatty.c' || echo '$(srcdir)/'`_isatty.c
+-
+-lib_a-_isatty.obj: _isatty.c
+-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-_isatty.obj `if test -f '_isatty.c'; then $(CYGPATH_W) '_isatty.c'; else $(CYGPATH_W) '$(srcdir)/_isatty.c'; fi`
+-
+-lib_a-isatty.o: isatty.c
+-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-isatty.o `test -f 'isatty.c' || echo '$(srcdir)/'`isatty.c
+-
+-lib_a-isatty.obj: isatty.c
+-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-isatty.obj `if test -f 'isatty.c'; then $(CYGPATH_W) 'isatty.c'; else $(CYGPATH_W) '$(srcdir)/isatty.c'; fi`
+-
+ lib_a-opendir.o: opendir.c
+ 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-opendir.o `test -f 'opendir.c' || echo '$(srcdir)/'`opendir.c
+ 
+diff -Naur newlib-1.20.0-orig/newlib/libc/posix/execvp.c newlib-1.20.0/newlib/libc/posix/execvp.c
+--- newlib-1.20.0/newlib/libc/posix/execvp.c	2008-10-31 22:03:41.000000000 +0100
++++ newlib-1.20.0/newlib/libc/posix/execvp.c	2014-12-09 13:50:31.538891498 +0100
+@@ -44,7 +44,7 @@
+   char buf[MAXNAMLEN];
+ 
+   /* If $PATH doesn't exist, just pass FILE on unchanged.  */
+-  if (!path)
++  if (!path || *path == 0)
+     return execv (file, argv);
+ 
+   /* If FILE contains a directory, don't search $PATH.  */

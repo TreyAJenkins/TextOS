@@ -32,11 +32,6 @@
 #include <kernel/hostinfo.h>
 #include <nucleus.h>
 
-
-#define STRINGIFY(x) #x
-#define MACRO(x)     STRINGIFY(x)
-
-
 char license[1200] = "MIT License\n"
 "\n"
 "Copyright (c) 2015 Trey Jenkins\n"
@@ -196,11 +191,6 @@ void kmain(multiboot_info_t *mbd, unsigned int magic, uint32 init_esp0) {
 		panic("initrd.img not loaded! Make sure the GRUB config contains a \"module\" line.\nSystem halted.");
 	}
 
-	//license();
-
-	printc(BLACK, RED, "TextOS starting up...\n");
-	printk("+--------------------------------------------+\n| Build ID: %s |\n+--------------------------------------------+\n\n", MACRO(BUILDID));
-
 	// Parse the kernel command line
 	if (mbd->flags & (1 << 2)) {
 		// Duplicate it, so that we know that the address will be mapped when paging is enabled
@@ -214,7 +204,7 @@ void kmain(multiboot_info_t *mbd, unsigned int magic, uint32 init_esp0) {
 		}
 	}
 
-	printk("Little Endian: %i\n", endian());
+	//printk("Little Endian: %i\n", endian());
 
 	if (mbd->flags & 1) {
 		unsigned int ram = (mbd->mem_lower) + (mbd->mem_upper);
@@ -297,19 +287,20 @@ void kmain(multiboot_info_t *mbd, unsigned int magic, uint32 init_esp0) {
 	//printk("CPU Speed: %d\n", GetCPUSpeed());
 
 	//Initialize Nucleus
-	printk("Initializing TreyCorp Nucleus:\n");
+	if (!quiet) printk("Initializing Nucleus:\n");
 	extern long AuthToken;
 	extern bool OpenToken;
-	printk("  [*] Seeding the PRNG ... ");
+	if (!quiet) printk("  [*] Seeding the PRNG ... ");
 	SetSeed(AuthToken, (long) gettickcount()); // Seed the PRNG with the tick count
-	printc(BLACK, GREEN, "[SUCCESS]\n");
-	printk("  [*] Generating an Authentication Token ... ");
+	if (!quiet) printc(BLACK, GREEN, "[SUCCESS]\n");
+	if (!quiet) printk("  [*] Generating an Authentication Token ... ");
 	GenerateToken();
-	printc(BLACK, GREEN, "[SUCCESS]\n");
-	printk("  [*] Initializing the Stack Smashing Detector ... ");
+	if (!quiet) printc(BLACK, GREEN, "[SUCCESS]\n");
+	if (!quiet) printk("  [*] Initializing the Stack Smashing Detector ... ");
 	InitSSP();
-	printc(BLACK, GREEN, "[SUCCESS]\n");
-	printk("\n");
+	if (!quiet) printc(BLACK, GREEN, "[SUCCESS]\n");
+	if (!quiet) printk("\n");
+	if (quiet) printk("Nucleus initialized successfully\n");
 
 
 #if 1

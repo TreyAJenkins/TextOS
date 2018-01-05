@@ -52,7 +52,7 @@ all: $(OBJFILES)
 	#	make -C $$prog; \
 	#done
 	@$(LD) -T linker-kernel.ld -o kernel.bin ${OBJFILES}
-	#@strip kernel.bin
+	@strip kernel.bin
 	@cp kernel.bin isofiles/boot
 	@set -e; for prog in $(USERSPACEPROG); do \
 		make -C $$prog; \
@@ -65,13 +65,11 @@ all: $(OBJFILES)
 		mv initrd/bin/eshell initrd/bin/sh; \
 	fi
 	@python2 misc/create_initrd.py > /dev/null # let stderr through!
-	@mkisofs -R -b boot/grub/stage2_eltorito -no-emul-boot -boot-load-size 4 -boot-info-table -o bootable.iso isofiles 2>&1 | grep -vP 'GNU xorriso|^\s*$$' || true
+	@mkisofs -R -b boot/grub/stage2_eltorito -no-emul-boot -boot-load-size 4 -boot-info-table -o TextOS.iso isofiles 2>&1 | grep -vP 'GNU xorriso|^\s*$$' || true
 	-@rm -f serial-output
 
-
-
 clean:
-	-$(RM) $(wildcard $(OBJFILES) $(DEPFILES) kernel.bin bootable.iso misc/initrd.img)
+	-$(RM) $(wildcard $(OBJFILES) $(DEPFILES) kernel.bin TextOS.iso misc/initrd.img isofiles/boot/kernel.bin isofiles/boot/initrd.img)
 	@for prog in $(USERSPACEPROG); do \
 		make -C $$prog clean; \
 		rm -f initrd/bin/`basename "$$prog"` initrd/bin/tests/`basename "$$prog"`; \
@@ -81,32 +79,9 @@ clean:
 
 -include $(DEPFILES)
 
-todolist:
-	-@for file in $(ALLFILES); do fgrep -H -e TODO -e FIXME $$file; done; true
-	@cat TODO
 
 %.o: %.c Makefile
 	@$(CC) $(CFLAGS) -MMD -MP -c $< -o $@ -fno-builtin
 
 %.o: %.s Makefile
 	@nasm -o $@ $< -f elf -F dwarf -g
-
-nofat: all
-	$(QEMU) -cdrom bootable.iso -monitor stdio -s -serial file:serial-output -m 64
-
-#net: all
-	#@bash net-scripts/prepare.sh
-	#@sudo $(QEMU) -cdrom bootable.iso -hda hdd.img -hdb fat32.img -monitor stdio -s -serial file:serial-output -d cpu_reset -m 64 -net nic,vlan=0,macaddr=00:aa:00:18:6c:00,model=rtl8139 -net tap,ifname=tap2,script=net-scripts/ifup.sh,downscript=no $(KVM)
-
-netdebug:
-	bash net-scripts/prepare.sh
-	sudo $(QEMU) -cdrom bootable.iso -monitor stdio -s -S -serial stdout -d cpu_reset -m 64 -net nic,vlan=0,macaddr=00:aa:00:18:6c:00,model=rtl8139 -net tap,ifname=tap2,script=net-scripts/ifup.sh,downscript=no $(KVM)
-
-run: all
-	@sudo $(QEMU) -cdrom bootable.iso -hda ext2-1kb.img -monitor stdio -s -serial file:serial-output -d cpu_reset -m 64 -boot d $(KVM)
-
-bochs: all
-	-@bochs -f TextOS.bochs -q
-
-debug: all
-	@sudo $(QEMU) -cdrom bootable.iso -hda ext2-1kb.img -monitor stdio -s -S -serial file:serial-output -d cpu_reset -m 64 -boot d $(KVM)

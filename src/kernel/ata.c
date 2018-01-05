@@ -31,7 +31,7 @@ static uint16 busmaster_port = 0;
 
 #define BSWAP16(x) ( (((x) & 0xff) << 8) | (((x) & 0xff00) >> 8) )
 
-#define ATA_VERBOSE 1
+#define ATA_VERBOSE 0
 
 /* Globals */
 ata_channel_t channels[2];

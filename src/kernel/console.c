@@ -9,6 +9,10 @@
 #include <kernel/timer.h>
 #include <kernel/time.h>
 #include <kernel/serial.h>
+#include <kernel/hostinfo.h>
+
+#define STRINGIFY(x) #x
+#define MACRO(x)     STRINGIFY(x)
 
 /* A character representing empty space on the screen */
 static const uint16 blank = (0x7 << 8 /* grey on black */) | 0x20 /* space */;
@@ -367,23 +371,38 @@ void update_statusbar(void) {
 	puts_status(0, "[TextOS]");
 
 	// Show the VC number
-	char buf[32] = {0};
+	char buf[33] = {0};
 	sprintf(buf, "VC%u", current_console_number + 1); // convert to 1-indexed
 	puts_status(12, buf);
 
+	int bstate = 0;
+
 	// Show scrollback status
-	if (current_console->current_position != 0) {
-		sprintf(buf, "Scrollback: %u line%c", current_console->current_position, (current_console->current_position > 1 ? 's' : 0));
-		puts_status(16, buf);
-	}
+	//if (current_console->current_position != 0) {
+		//sprintf(buf, "Scrollback: %u line%c", current_console->current_position, (current_console->current_position > 1 ? 's' : 0));
+	//	puts_status(16, buf);
+	//}
+
+
 
 	// Show a clock
 	Time t;
 	get_time(&t);
 	//t.hour; // defaulted at UTC, and there's no real TZ support in this OS!
 	t.hour %= 24;
-	sprintf(buf, "[%02d:%02d]", t.hour, t.minute);
-	puts_status(73, buf);
+	sprintf(buf, "[%02d:%02d:%02d]", t.hour, t.minute, t.second);
+	puts_status(70, buf);
+
+	//print the build ID and CPUID
+	if ((t.second / 10) % 2) {
+		sprintf(buf, "%s", MACRO(BUILDID));
+		puts_status(24, buf);
+	} else {
+		int size = strlen(trim(CPUName));
+		sprintf(buf, "%s", trim(CPUName));
+		puts_status(40-(size/2), buf);
+	}
+
 }
 
 // Copies the part of the screen that should be visible from the scrollback

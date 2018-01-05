@@ -5,7 +5,7 @@
 *.pyc
 kernel.bin
 initrd.img
-bootable.iso
+TextOS.iso
 
 testing_area
 *.dSYM

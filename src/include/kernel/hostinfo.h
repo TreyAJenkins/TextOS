@@ -8,6 +8,6 @@ char CPUName[17];
 void GetCPUVendor(void);
 void GetCPUName(void);
 bool isVM(void);
-void GetCPUSpeed(void);
+double GetCPUSpeed(void);
 
 #endif

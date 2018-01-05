@@ -33,7 +33,7 @@ enum {
     DT_WHT = 14
 };
 
-#ifndef  _EXSCAPEOS_KERNEL
+#ifndef  _TEXTOS_KERNEL
 typedef struct {
     int dd_fd;		/* directory file */
     int dd_loc;		/* position in buffer */

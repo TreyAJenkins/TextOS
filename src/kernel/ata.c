@@ -17,9 +17,9 @@ extern list_t *pci_devices;
 
 static uint16 busmaster_port = 0;
 
-/* 
- * This is the TextOS ATA driver. It's written based on the ATA/ATAPI-6
- * standard (published in 2001). Version 6 was chosen because it is the 
+/*
+ * This is the ATA driver. It's written based on the ATA/ATAPI-6
+ * standard (published in 2001). Version 6 was chosen because it is the
  * most recent standard that does NOT include Serial ATA... Yep.
  * Unfortunately, not supporting SATA is easier than supporting SATA.
  * At the time of this writing, easier = better.
@@ -31,7 +31,7 @@ static uint16 busmaster_port = 0;
 
 #define BSWAP16(x) ( (((x) & 0xff) << 8) | (((x) & 0xff00) >> 8) )
 
-#define ATA_VERBOSE 0
+#define ATA_VERBOSE 1
 
 /* Globals */
 ata_channel_t channels[2];
@@ -49,9 +49,9 @@ static void ata_reg_write(uint8 channel, uint16 reg, uint8 data);
  * The ATA interrupt handler.
  * The driver works a bit like this:
  * 1) Someone (within the kernel) calls ata_read/ata_write()
- * 2) ata_*() prepares and sends the command to the drive, 
+ * 2) ata_*() prepares and sends the command to the drive,
  *    and sets the current task to the IOWAIT state, taking
- *    it off the run queue. 
+ *    it off the run queue.
  * 3) The drive causes an interrupt, which calls this function.
  *    Its purpose is simply to wake up the task that called ata_*(),
  *    and pass control back to it.
@@ -473,7 +473,7 @@ void ata_init(void) {
 			printk("%s %s: %s\n",
 					(dev <= 1 ? "Primary" : "Secondary"),
 					((dev == 0 || dev == 2) ? "master" : "slave"),
-					((d->exists == true && d->is_atapi == true) ? "ATAPI device" : "not present")); 
+					((d->exists == true && d->is_atapi == true) ? "ATAPI device" : "not present"));
 		}
 	}
 #endif

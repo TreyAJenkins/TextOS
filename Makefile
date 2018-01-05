@@ -3,7 +3,7 @@ TARGET = build
 WARNINGS := -Wall -Wextra -Wshadow -Wpointer-arith -Wcast-align \
 				-Wwrite-strings -Wredundant-decls -Winline \
 				-Wuninitialized -Wstrict-prototypes \
-				-Wno-unused-parameter -Wno-cast-align -Wno-unused-function -Wno-unused-variable -Wstack-protector
+				-Wno-unused-parameter -Wno-cast-align -Wno-unused-function -Wno-unused-variable
 
 #DISABLED WARNINGS: -Wnested-externs -Werror
 
@@ -86,7 +86,7 @@ todolist:
 	@cat TODO
 
 %.o: %.c Makefile
-	@$(CC) $(CFLAGS) -MMD -MP -c $< -o $@ #-fno-builtin
+	@$(CC) $(CFLAGS) -MMD -MP -c $< -o $@ -fno-builtin
 
 %.o: %.s Makefile
 	@nasm -o $@ $< -f elf -F dwarf -g
@@ -103,12 +103,10 @@ netdebug:
 	sudo $(QEMU) -cdrom bootable.iso -monitor stdio -s -S -serial stdout -d cpu_reset -m 64 -net nic,vlan=0,macaddr=00:aa:00:18:6c:00,model=rtl8139 -net tap,ifname=tap2,script=net-scripts/ifup.sh,downscript=no $(KVM)
 
 run: all
-	#@sudo $(QEMU) -cdrom bootable.iso -hda ext2-1kb.img -monitor stdio -s -serial file:serial-output -d cpu_reset -m 64 -boot d $(KVM)
-	qemu-system-x86_64 -cdrom bootable.iso
+	@sudo $(QEMU) -cdrom bootable.iso -hda ext2-1kb.img -monitor stdio -s -serial file:serial-output -d cpu_reset -m 64 -boot d $(KVM)
 
 bochs: all
 	-@bochs -f TextOS.bochs -q
 
 debug: all
-	#@sudo $(QEMU) -cdrom bootable.iso -hda ext2-1kb.img -monitor stdio -s -S -serial file:serial-output -d cpu_reset -m 64 -boot d $(KVM)
-	@$(QEMU) -cdrom bootable.iso -monitor stdio -s -S -serial file:serial-output -d cpu_reset -m 64 -boot d $(KVM)
+	@sudo $(QEMU) -cdrom bootable.iso -hda ext2-1kb.img -monitor stdio -s -S -serial file:serial-output -d cpu_reset -m 64 -boot d $(KVM)

@@ -1,5 +1,5 @@
 From 078db9a69a7ebea5185f6b559cf78dc3846636c2 Mon Sep 17 00:00:00 2001
-From: Thomas Backman <serenity@exscape.org>
+From: Trey Jenkins
 Date: Thu, 13 Dec 2012 11:11:36 +0100
 Subject: [PATCH] First take at TextOS binutils mods
 
@@ -100,6 +100,5 @@ index 0000000..76893a9
 +NO_SMALL_DATA=yes
 +SEPARATE_GOTPLT="SIZEOF (.got.plt) >= 12 ? 12 : 0"
 +IREL_IN_PLT=
--- 
+--
 1.7.7.4
-

@@ -102,7 +102,7 @@ void fat_parse_short_name(char *buf, const char *name) {
 
 /* Reads a cluster (or a whole chain) from disk and figures out
  * how many files (and/or directories) it contains. */
-#if 0
+#if 1
 static uint32 fat_dir_num_entries(fat32_partition_t *part, uint32 cluster) {
 	uint32 cur_cluster = cluster;
 	uint8 *disk_data = kmalloc(part->cluster_size);

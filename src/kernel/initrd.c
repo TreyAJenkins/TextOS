@@ -93,7 +93,8 @@ bool fs_mount(void) {
 			mountpoint_t *mp = (mountpoint_t *)it->data;
 			mp->depth = depth;
 			if (strcmp(mount, "fat") == 0) {
-				if (devtable[mp->dev] != 0 && devtable[mp->dev] != (void *)0xffffffff) {
+				//printk("DT: %i\n", devtable[mp->dev]);
+				if ((devtable[mp->dev] != 0) && (devtable[mp->dev] != (void *)0xffffffff)) {
 					if (strcmp(path, "/") == 0)
 						root_mounted = true;
 					strcpy(mp->path, path);

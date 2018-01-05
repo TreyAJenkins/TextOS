@@ -36,6 +36,29 @@
 #define STRINGIFY(x) #x
 #define MACRO(x)     STRINGIFY(x)
 
+
+char license[1200] = "MIT License\n"
+"\n"
+"Copyright (c) 2015 Trey Jenkins\n"
+"\n"
+"Permission is hereby granted, free of charge, to any person obtaining a copy\n"
+"of this software and associated documentation files (the \"Software\"), to deal\n"
+"in the Software without restriction, including without limitation the rights\n"
+"to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n"
+"copies of the Software, and to permit persons to whom the Software is\n"
+"furnished to do so, subject to the following conditions:\n"
+"\n"
+"The above copyright notice and this permission notice shall be included in all\n"
+"copies or substantial portions of the Software.\n"
+"\n"
+"THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n"
+"IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n"
+"FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n"
+"AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n"
+"LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n"
+"OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n"
+"SOFTWARE.\n";
+
 /* kheap.c */
 extern uint32 placement_address;
 
@@ -114,6 +137,12 @@ int TSA() {
 	printk("Loading Keymap: %s\n", kmp);
 	loadKeymap(kmp, 0);
 
+	//char* cshell = ReadConfig("SHELL");
+	//if (strcmp(cshell, "~FSTEST") == 0) {
+		//fstest();
+	//}
+
+
 	printk("All initialization complete!\n\n");
 	return 0;
 }
@@ -123,6 +152,7 @@ int endian() {
     // return 0 for big endian, 1 for little endian.
     return (*((uint8_t*)(&i))) == 0x67;
 }
+
 
 void kmain(multiboot_info_t *mbd, unsigned int magic, uint32 init_esp0) {
 
@@ -165,6 +195,8 @@ void kmain(multiboot_info_t *mbd, unsigned int magic, uint32 init_esp0) {
 	if (mbd->mods_count == 0) {
 		panic("initrd.img not loaded! Make sure the GRUB config contains a \"module\" line.\nSystem halted.");
 	}
+
+	//license();
 
 	printc(BLACK, RED, "TextOS starting up...\n");
 	printk("+--------------------------------------------+\n| Build ID: %s |\n+--------------------------------------------+\n\n", MACRO(BUILDID));
@@ -331,13 +363,6 @@ void kmain(multiboot_info_t *mbd, unsigned int magic, uint32 init_esp0) {
 	else
 		printc(BLACK, RED, "failed!\n");
 
-	//Set keymap
-	//printk("Loading keymap: EN_US.kmp ... ");
-	//if ((loadKeymap("/etc/drivers/keyboard/EN_US.kmp", 0)) != 0) {
-	//	printc(BLACK, RED, "[FAILURE]\n");
-	//} else {
-	//	printc(BLACK, GREEN, "[SUCCESS]\n");
-	//}
 
 #if 1
 	if (!quiet)

@@ -55,7 +55,7 @@ bool isVM(void) {
     }
 }
 
-void GetCPUSpeed(void) {
+double GetCPUSpeed(void) {
     int xor = 0;
     int start = kern_time();
     double iterations;
@@ -66,4 +66,5 @@ void GetCPUSpeed(void) {
     double opps = (iterations);
     printk("Start: %i | End: %i | Iterations: %d | OPS: %d\n", start, kern_time(), iterations, opps);
     CPUSpeed = opps;
+    return CPUSpeed;
 }

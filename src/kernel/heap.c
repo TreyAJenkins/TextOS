@@ -264,7 +264,7 @@ area_header_t *find_smallest_hole(uint32 size, bool page_align, heap_t *heap) {
 		if (header->size >= size) {
 			/* We found something! */
 			if (page_align) {
-				/* The hole needs to be page aligned. We don't page align it here, but we need to 
+				/* The hole needs to be page aligned. We don't page align it here, but we need to
 				 * make sure that this hole is big enough even when you subtract the space lost
 				 * to alignment. */
 				uint32 location = (uint32)header;
@@ -511,7 +511,7 @@ void *heap_alloc(uint32 size, bool page_align, heap_t *heap) {
 		else {
 			/* This is rare, but happens... If we get here, the area between the previous area and the page-aligned area we want to create
 			 * is larger than 0, but smaller than the overhead of an additional area. In other words, we can't write a header + footer
-			 * here... 
+			 * here...
 			 * What we do is try to locate the area to the left of the wasted space, and increase it in size... */
 			area_footer_t *test_footer = (area_footer_t *)( (uint32)area - sizeof(area_footer_t) );
 			if (test_footer->magic == HEAP_MAGIC) {
@@ -682,7 +682,7 @@ void heap_free(void *p, heap_t *heap) {
 	area_footer_t *left_area_footer = (area_footer_t *)( (uint32)header - sizeof(area_footer_t) );
 	if ((uint32)left_area_footer >= (uint32)heap->start_address && /* make sure to not make an invalid access */ \
 		left_area_footer->magic == HEAP_MAGIC) {
-		/* Looks like we found another area! 
+		/* Looks like we found another area!
 		 * Do some extra checks, and make sure it's a FREE area */
 		   area_header_t *left_area_header = left_area_footer->header;
 		   if (left_area_header->magic == HEAP_MAGIC && left_area_header->type == AREA_FREE) {
@@ -727,7 +727,7 @@ void heap_free(void *p, heap_t *heap) {
 			/* Add the newfound space to the leftmost header */
 			header->size += right_area_header->size;
 
-			/* Overwrite the old header and footer, just in case something tries to use them; 
+			/* Overwrite the old header and footer, just in case something tries to use them;
 			 * in that case, the asserts will catch the invalid magics */
 			footer->magic = 0;
 			right_area_header->magic = 0;

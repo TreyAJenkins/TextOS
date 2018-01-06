@@ -7,7 +7,8 @@ fi
 
 # Set these up!
 DL=1          # Download distfiles automatically?
-FORCE_CLEAN=1 # Remove all unpacked sources/build stuff and re-unpack and patch
+FORCE_CLEAN=1 # Remove all unpacked sources/build stuff and re-unpack 
+and patch
 BUILD_GDB=1   # Build a GDB with TextOS target? (Set to 0 if you're not going to debug, to save time/disk space.)
 export PREFIX=/usr/local/cross # Where to install everything
 
@@ -48,10 +49,17 @@ if [[ $MAC -eq 1 ]]; then
 		echo "/usr/bin{gcc,g++,cpp}-4.2 not found! These are required for Mac OS X builds."
 		exit 1
 	fi
-	export CC=/usr/bin/gcc-4.2
-	export CXX=/usr/bin/g++-4.2
-	export CPP=/usr/bin/cpp-4.2
-	export LD=/usr/bin/gcc-4.2
+	#export CC=/usr/bin/gcc-4.2
+	#export CXX=/usr/bin/g++-4.2
+	#export CPP=/usr/bin/cpp-4.2
+	#export LD=/usr/bin/gcc-4.2
+
+	export CC=/usr/lib/ccache/bin/gcc
+	export CXX=/usr/lib/ccache/bin/g++
+	export CPP=/usr/lib/ccache/bin/cpp
+	export LD=/usr/lib/ccache/bin/gcc
+
+
 fi
 
 if [[ $DL -eq 1 ]]; then

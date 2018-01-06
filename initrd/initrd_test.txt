@@ -1,1 +1,0 @@
-Some text for testing initrd storage and stuff like that.

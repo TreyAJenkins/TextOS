@@ -73,7 +73,7 @@ void update_statusbar(void);
 extern volatile console_t *current_console;
 extern console_t kernel_console;
 
-#define NUM_VIRTUAL_CONSOLES 4
+#define NUM_VIRTUAL_CONSOLES 5
 extern console_t *virtual_consoles[NUM_VIRTUAL_CONSOLES];
 
 void console_destroy(console_t *con);
@@ -99,5 +99,6 @@ void cursor_right(void);
 void redraw_screen(void);
 void msgbox(int bgcolor, int fgcolor, int tcolor, const char* msg);
 void msgboxb(int bgcolor, int bgcolor2, int delay, int iter, int fgcolor, int tcolor, const char* msg);
+void msgboxc(int bgcolor, int fgcolor, int tcolor, const char* msg);
 
 #endif

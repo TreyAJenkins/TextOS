@@ -30,6 +30,7 @@ static uint8 status_bgcolor = BLUE; /* not const, needs to be able to change */
 static const uint8 status_fgcolor = WHITE;
 static uint8 current_console_number = 0;
 bool kernel_paniced = false;
+int promptReturn = 0;
 
 /* TODO: MORE mutexes! */
 //mutex_t *printk_mutex;
@@ -40,7 +41,7 @@ static void force_update_cursor(void);
 //void redraw_screen(void);
 
 /* A set of virtual consoles, accessed using Alt+F1, Alt+F2, ..., Alt+Fn */
-#define NUM_VIRTUAL_CONSOLES 4
+#define NUM_VIRTUAL_CONSOLES 5
 console_t *virtual_consoles[NUM_VIRTUAL_CONSOLES];
 /* These are set up properly in kmain() */
 
@@ -128,7 +129,7 @@ console_t *console_create(void) {
 
 	/* This function should only be used to set up the virtual consoles,
 	 * at the moment! If the last of them is set up, well... */
-	assert(virtual_consoles[NUM_VIRTUAL_CONSOLES - 1] == NULL);
+	//assert(virtual_consoles[NUM_VIRTUAL_CONSOLES - 1] == NULL);
 
 	console_t *new = kmalloc(sizeof(console_t));
 	memset(new, 0, sizeof(console_t));
@@ -394,16 +395,22 @@ void update_statusbar(void) {
 	puts_status(70, buf);
 
 	//print the build ID and CPUID
-	if ((t.second / 10) % 2) {
-		int size = strlen(trim(MACRO(BUILDID))) + strlen("TextOS Version: ");
-		sprintf(buf, "TextOS Version: %s", trim(MACRO(BUILDID)));
-		puts_status(40-(size/2), buf);
-	} else {
-		int size = strlen(trim(CPUName));
-		sprintf(buf, "%s", trim(CPUName));
-		puts_status(40-(size/2), buf);
+	if (current_console_number < 4) {
+		status_bgcolor = BLUE;
+		if ((t.second / 10) % 2) {
+			int size = strlen(trim(MACRO(BUILDID))) + strlen("TextOS Version: ");
+			sprintf(buf, "TextOS Version: %s", trim(MACRO(BUILDID)));
+			puts_status(40-(size/2), buf);
+		} else {
+			int size = strlen(trim(CPUName));
+			sprintf(buf, "%s", trim(CPUName));
+			puts_status(40-(size/2), buf);
+		}
+	} else if (current_console_number == 4) {
+		status_bgcolor = RED;
+		sprintf(buf, "TEXTOS USERSPACE ABSTRACTION LAYER");
+		puts_status(40-(strlen(trim(buf))/2), trim(buf));
 	}
-
 }
 
 // Copies the part of the screen that should be visible from the scrollback
@@ -478,6 +485,16 @@ void scroll(void) {
 // Print a character to the current cursor location
 int putchar(int c) {
 	Point *cursor = NULL;
+
+	if (promptReturn == -1) {
+		if (c == '\n') {
+			promptReturn = 1;
+		} else if (c == 0x08) {
+			promptReturn = 2;
+		} else {
+			promptReturn = 3;
+		}
+	}
 
 	console_t *con = console_task->console;
 	if (con == NULL)
@@ -715,6 +732,131 @@ void msgbox(int bgcolor, int fgcolor, int tcolor, const char* msg) {
 	puts_manual(x, y, fgcolor, tcolor, msg);
 
 }
+
+void msgboxc(int bgcolor, int fgcolor, int tcolor, const char* msg) {
+
+	#define term_width 80 // The width of the terminal; default: 80
+	#define term_height 23 // the height of the terminal; default: 23
+
+	int msglength = strlen(msg);
+	int msgstart = ((term_width / 2)) - ((msglength / 2));
+
+
+	int boxwidth = msglength + 2;
+	int boxstart = ((term_width / 2)) - ((boxwidth / 2));
+	int boxend = ((term_width / 2)) + ((boxwidth / 2));
+
+
+	int x, y;
+	//Draw the box
+
+	x = boxstart;
+	y = (term_height / 2) - 0.5;
+
+	for (int i = boxstart; i <= boxend; i++) { // Top row
+		puts_manual(i, y, bgcolor, bgcolor, " ");
+	}
+	y++;
+	puts_manual(x, y, bgcolor, bgcolor, " "); // Middle row
+	for (int i = boxstart+1; i <= boxend-1; i++) {
+		puts_manual(i, y, fgcolor, fgcolor, " ");
+	}
+	puts_manual(boxend, y, bgcolor, bgcolor, " ");
+	y++;
+	for (int i = boxstart; i <= boxend; i++) { // Bottom row
+		puts_manual(i, y, bgcolor, bgcolor, " ");
+	}
+
+	//Insert the text
+	x = msgstart;
+	y = (term_height / 2);
+	puts_manual(x, y, fgcolor, tcolor, msg);
+
+
+	//draw option 1
+	const char op1[] = "PRESS BACKSPACE TO CANCEL";
+
+	msglength = strlen(op1);
+	msgstart = ((term_width / 2)) - ((msglength / 2));
+	boxwidth = msglength + 2;
+
+	boxstart = ((term_width / 2)) - ((boxwidth / 2));
+	boxend = ((term_width / 2)) + ((boxwidth / 2));
+
+	x = boxstart;
+	y = (term_height / 4) - 0.5;
+
+	for (int i = boxstart; i <= boxend; i++) { // Top row
+		puts_manual(i, y, bgcolor, bgcolor, " ");
+	}
+	y++;
+	puts_manual(x, y, bgcolor, bgcolor, " "); // Middle row
+	for (int i = boxstart+1; i <= boxend-1; i++) {
+		puts_manual(i, y, fgcolor, fgcolor, " ");
+	}
+	puts_manual(boxend, y, bgcolor, bgcolor, " ");
+	y++;
+	for (int i = boxstart; i <= boxend; i++) { // Bottom row
+		puts_manual(i, y, bgcolor, bgcolor, " ");
+	}
+
+	//Insert the text
+	x = msgstart;
+	y = (term_height / 4);
+	puts_manual(x, y, fgcolor, tcolor, op1);
+
+
+	const char* bufs = "PRESS ENTER TO CONTINUE";
+
+	msglength = strlen(bufs);
+	msgstart = ((term_width / 2)) - ((msglength / 2));
+	boxwidth = msglength + 2;
+
+	boxstart = ((term_width / 2)) - ((boxwidth / 2));
+	boxend = ((term_width / 2)) + ((boxwidth / 2));
+
+	x = boxstart;
+	y = (term_height * .75) - 0.5;
+
+	for (int i = boxstart; i <= boxend; i++) { // Top row
+		puts_manual(i, y, bgcolor, bgcolor, " ");
+	}
+	y++;
+	puts_manual(x, y, bgcolor, bgcolor, " "); // Middle row
+	for (int i = boxstart+1; i <= boxend-1; i++) {
+		puts_manual(i, y, fgcolor, fgcolor, " ");
+	}
+	puts_manual(boxend, y, bgcolor, bgcolor, " ");
+	y++;
+	for (int i = boxstart; i <= boxend; i++) { // Bottom row
+		puts_manual(i, y, bgcolor, bgcolor, " ");
+	}
+
+	//Insert the text
+	x = msgstart;
+	y = (term_height * .75);
+	puts_manual(x, y, fgcolor, tcolor, bufs);
+
+	promptReturn = -1;
+
+	while (promptReturn == -1) {
+		if (promptReturn == 1) {
+			return 1;
+		} else if (promptReturn == 2) {
+			return 0;
+		} else if (promptReturn == 3) {
+			msgboxc( bgcolor,  fgcolor,  tcolor, msg);
+		}
+	}
+
+	//for (int i = 0; i < 100; i++) {
+	//	sleep(5);
+	//}
+	//sleep(1000);
+
+
+}
+
 
 void msgboxb(int bgcolor, int bgcolor2, int delay, int iter, int fgcolor, int tcolor, const char* msg) {
 	#define term_width 80 // The width of the terminal; default: 80

@@ -45,8 +45,10 @@ QEMU := qemu-system-i386
 #KVM := -machine accel=kvm
 KVM :=
 
+all: compile strip build
+debug: compile build
 
-all: $(OBJFILES)
+compile: $(OBJFILES)
 	echo "GENERATING BUILD: ${BUILDID}"
 	@set -e; if [ ! -d "initrd/bin" ]; then \
 		mkdir -p initrd/bin initrd/etc; \
@@ -55,7 +57,8 @@ all: $(OBJFILES)
 	#	make -C $$prog; \
 	#done
 	@$(LD) -T linker-kernel.ld -o kernel.bin ${OBJFILES}
-	@strip kernel.bin
+
+build:
 	@cp kernel.bin isofiles/boot
 	@set -e; for prog in $(USERSPACEPROG); do \
 		make -C $$prog; \
@@ -70,6 +73,11 @@ all: $(OBJFILES)
 	@python2 misc/create_initrd.py > /dev/null # let stderr through!
 	@mkisofs -R -b boot/grub/stage2_eltorito -no-emul-boot -boot-load-size 4 -boot-info-table -o TextOS.iso isofiles 2>&1 | grep -vP 'GNU xorriso|^\s*$$' || true
 	-@rm -f serial-output
+
+strip:
+	@strip kernel.bin
+
+
 
 clean:
 	-$(RM) $(wildcard $(OBJFILES) $(DEPFILES) kernel.bin TextOS.iso misc/initrd.img isofiles/boot/kernel.bin isofiles/boot/initrd.img)

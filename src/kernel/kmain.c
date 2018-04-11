@@ -31,6 +31,7 @@
 #include <kernel/fpu.h>
 #include <kernel/hostinfo.h>
 #include <nucleus.h>
+#include <kernel/tsa.h>
 
 
 #define STRINGIFY(x) #x
@@ -83,69 +84,6 @@ extern task_t *reaper_task;
 extern uint32 end; // defined in linker.ld
 
 void reaper_func(void *data, uint32 length);
-
-//Configuration file
-struct ConfigString {
-	char key[16];
-	char value[48];
-};
-
-struct ConfigRoot {
-	unsigned char header[10];
-	unsigned int values;
-	struct ConfigString object[128];
-};
-
-const char* ReadConfig(char* key) {
-
-	struct ConfigRoot* config = kmalloc(sizeof(struct ConfigRoot));
-
-	int fd = open("kernel.cfg", O_RDONLY);
-	if (fd < 0) {
-		//Invalid path
-		kfree(config);
-		return "";
-	}
-
-	read(fd, config, sizeof(struct ConfigRoot));
-	close(fd);
-
-	if (strncmp(config->header, "TEXTOSCFG", 9) == 0) {
-		//VALID CONFIG FILE
-	} else {
-		//INVALID CONFIG FILE
-		kfree(config);
-		return "";
-	}
-
-	for (unsigned int i = 0; i < config->values; i++) {
-		if (strcmp(config->object[i].key, key) == 0) {
-			const char* val = config->object[i].value;
-			kfree(config);
-			return val;
-		}
-	}
-
-	kfree(config);
-
-	return "";
-}
-
-int TSA() {
-	//loadKeymap("/etc/drivers/keyboard/EN_US.kbd", 1);
-	char* kmp = ReadConfig("KEYMAP");
-	printk("Loading Keymap: %s\n", kmp);
-	loadKeymap(kmp, 0);
-
-	//char* cshell = ReadConfig("SHELL");
-	//if (strcmp(cshell, "~FSTEST") == 0) {
-		//fstest();
-	//}
-
-
-	printk("All initialization complete!\n\n");
-	return 0;
-}
 
 int endian() {
     volatile uint32_t i=0x01234567;
@@ -388,7 +326,7 @@ void kmain(multiboot_info_t *mbd, unsigned int magic, uint32 init_esp0) {
 #if 1
 	/* Set up the virtual consoles (Alt+F1 through F4 at the time of writing) */
 	assert(NUM_VIRTUAL_CONSOLES >= 2); /* otherwise this loop will cause incorrect array access */
-	for (int i=1 /* sic! */; i < NUM_VIRTUAL_CONSOLES; i++) {
+	for (int i=1 /* sic! */; i < NUM_VIRTUAL_CONSOLES-1; i++) {
 		virtual_consoles[i] = console_create();
 		/* node_t *new_node = */list_append(virtual_consoles[i]->tasks, create_task(&kshell, "kshell", virtual_consoles[i], NULL, 0));
 		//((task_t *)new_node->data)->console = &virtual_consoles[i];
@@ -403,7 +341,10 @@ void kmain(multiboot_info_t *mbd, unsigned int magic, uint32 init_esp0) {
 	/* Hack-setup a kernel shell on the kernel console */
 	assert(virtual_consoles[0] == &kernel_console);
 	/*task_t *kernel_shell =*/
-	create_task(&TSA, "TSA", virtual_consoles[0], NULL, 0);
+
+	//Create a log consoles
+	virtual_consoles[4] = console_create();
+	create_task(&TSA, "TSA", virtual_consoles[4], NULL, 0);
 
 	create_task(&kshell, "kshell", virtual_consoles[0], NULL, 0);
 

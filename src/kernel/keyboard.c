@@ -232,6 +232,15 @@ uint32 keyboard_callback(uint32 esp) {
 
 		return esp;
 	}
+	if (mod_keys == MOD_ALT && scancode == 0x01) { // Switch to diagnostics console
+		console_t *virt = virtual_consoles[4];
+		if (virt == NULL) {
+			return esp;
+		}
+		console_switch(virt);
+
+		return esp;
+	}
 
 #if 0
 	if (scancode & 0x80)

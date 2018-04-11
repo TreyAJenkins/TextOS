@@ -26,11 +26,11 @@
  * of the current (to-be-switched-out) task.
  * After deciding which task to switch to, the task switching code
  * updates the TSS, switches to the correct page directory, etc.,
- * and returns the ESP of the new task. That points the CPU to 
+ * and returns the ESP of the new task. That points the CPU to
  * the stack of the NEW task, where the ISR automatically pops off
- * the values of all the registers (except ESP, of course), 
+ * the values of all the registers (except ESP, of course),
  * plus EFLAGS, EIP and all that. After that's done, the IRET
- * instruction jumps to the EIP it just popped off, and the 
+ * instruction jumps to the EIP it just popped off, and the
  * task has been switched!
  */
 
@@ -1000,7 +1000,7 @@ uint32 scheduler_taskSwitch(uint32 esp) {
 
 		return switch_task(tmp, esp);
 	}
-	
+
 	if (current_task->did_execve) {
 		current_task->did_execve = false;
 		esp = current_task->esp;

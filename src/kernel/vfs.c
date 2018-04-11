@@ -344,6 +344,7 @@ ssize_t sys_readlink(const char *pathname, char *buf, size_t bufsiz) {
 
 int read(int fd, void *buf, int length) {
 	struct open_file *file = get_filp(fd);
+
 	if (file == NULL)
 		return -EBADF;
 

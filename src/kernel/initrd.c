@@ -150,6 +150,8 @@ int initrd_closedir(DIR *dir);
 int initrd_read(int fd, void *buf, size_t length) {
 	assert(fd <= MAX_OPEN_FILES);
 	struct open_file *file = get_filp(fd);
+	//printk("$: %s\n", file->path);
+	
 
 	assert(devtable[file->dev] == (void *)0xffffffff);
 	initrd_file_header_t header = initrd_files[file->ino];
@@ -254,6 +256,7 @@ int initrd_open(uint32 dev __attribute__((unused)), const char *path, int mode) 
 			file->size = initrd_files[i].length;
 			file->mp = initrd_mp;
 			file->path = strdup(path); // TODO: what does this turn out to be?
+			//printk("$: %s\n", strdup(path));
 			file->fops.read  = initrd_read;
 			file->fops.write = NULL;
 			file->fops.close = initrd_close;

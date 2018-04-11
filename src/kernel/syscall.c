@@ -6,6 +6,7 @@
 #include <kernel/vfs.h>
 #include <kernel/backtrace.h>
 #include <sys/time.h>
+#include <kernel/tsa.h>
 
 // strace-like mechanism that prints all syscalls and their parameters
 #define SYSCALL_DEBUG 0
@@ -71,7 +72,8 @@ struct syscall_entry syscalls[] = {
 	{ &dup2, 2, 32 },
 	{ &sys_pipe, 1, 32 },
 	{ &sys_lstat, 2, 32 }, /* 30 */
-	{ &sys_readlink, 3, 32 }
+	{ &sys_readlink, 3, 32 },
+	{ &dropbox, 2, 32}
 };
 
 uint32 num_syscalls = 0;

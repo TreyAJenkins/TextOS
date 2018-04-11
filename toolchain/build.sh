@@ -7,8 +7,7 @@ fi
 
 # Set these up!
 DL=1          # Download distfiles automatically?
-FORCE_CLEAN=1 # Remove all unpacked sources/build stuff and re-unpack 
-and patch
+FORCE_CLEAN=1 # Remove all unpacked sources/build stuff and re-unpack and patch
 BUILD_GDB=1   # Build a GDB with TextOS target? (Set to 0 if you're not going to debug, to save time/disk space.)
 export PREFIX=/usr/local/cross # Where to install everything
 

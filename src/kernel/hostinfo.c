@@ -6,7 +6,7 @@
 #include <stdint.h>
 
 char CPUVendor[13];
-char CPUName[17];
+char CPUName[33] = {0};
 double CPUSpeed;
 
 void GetCPUVendor(void) {
@@ -26,21 +26,28 @@ void GetCPUVendor(void) {
 void GetCPUName(void) {
     unsigned long extended, eax, ebx, ecx, edx, unused;
     __cpuid(0x80000000, extended, unused, unused, unused);
-    CPUName[16] = '\0';
+    CPUName[33] = '\0';
+    int cpp = 0;
     if(extended >= 0x80000002) {
         unsigned int k;
-        for(k = 0x80000002; k <= 0x80000002; k++) {
+        for(k = 0x80000002; k <= 0x80000003; k++) {
             __cpuid(k, eax, ebx, ecx, edx);
             //printk ("EAX: %x\nEBX: %x\nECX: %x\nEDX: %x\n", eax, ebx, ecx, edx);
 
+
             int l;
             for(l = 0; l < 4; l++) {
-                CPUName[l] = eax >> (8 * l);
-                CPUName[l + 4] = ebx >> (8 * l);
-                CPUName[l + 8] = ecx >> (8 * l);
-                CPUName[l + 12] = edx >> (8 * l);
+                CPUName[l+(cpp*16)] = eax >> (8 * l);
+                CPUName[l+(cpp*16) + 4] = ebx >> (8 * l);
+                CPUName[l+(cpp*16) + 8] = ecx >> (8 * l);
+                CPUName[l+(cpp*16) + 12] = edx >> (8 * l);
+                /*printk("%i: %c\n", l*(cpp+1) + 0, CPUName[l*(cpp+1) + 0]);
+                printk("%i: %c\n", l*(cpp+1) + 4, CPUName[l*(cpp+1) + 4]);
+                printk("%i: %c\n", l*(cpp+1) + 8, CPUName[l*(cpp+1) + 8]);
+                printk("%i: %c\n", l*(cpp+1) + 12, CPUName[l*(cpp+1) + 12]);*/
                 //printk("CPU i%i: %s\n", l, CPUName);
             }
+            cpp++;
         }
     }
 }

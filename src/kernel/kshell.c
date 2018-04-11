@@ -378,6 +378,13 @@ int shells_started = 0;
 void boot_finished(void) {
 	return;
 }
+bool tracing = false;
+
+void trace(void) {
+	tracing = true;
+	start_leak_trace();
+	return;
+}
 
 void kshell(void *data, uint32 length) {
 	unsigned char *buf = kmalloc(1024);
@@ -387,7 +394,6 @@ void kshell(void *data, uint32 length) {
 
 	task_t *task = NULL;
 
-	bool tracing = false;
 
 	/* Make sure the current code spawns a new task for the kernel f */
 	assert(current_task != &kernel_task);
@@ -468,8 +474,7 @@ void kshell(void *data, uint32 length) {
 		if (*p == 0)
 			continue;
 
-		tracing = true;
-		start_leak_trace();
+
 
 		if (strcmp(p, "help") == 0 || strncmp(p, "help ", 5) == 0) {
 			printk("TextOS kernel shell help\n\nAvailable commands:\n");
@@ -521,7 +526,11 @@ void kshell(void *data, uint32 length) {
 				printk("user_stress_elf  - stress test the ELF loader\n");
 				printk("PRNG(16/64)      - test the PRNG included with nucleus\n");
 				printk("testSSP			 - test the stack smashing detector included with nucleus\n");
+				printk("trace			 - start a leak trace\n");
 			}
+		}
+		else if (strcmp(p, "trace") == 0) {
+			trace();
 		}
 		else if (strcmp(p, "testSSP") == 0) {
 			testSSP();

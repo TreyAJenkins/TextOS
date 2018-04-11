@@ -32,6 +32,11 @@
 #include <kernel/hostinfo.h>
 #include <nucleus.h>
 
+
+#define STRINGIFY(x) #x
+#define MACRO(x)     STRINGIFY(x)
+
+
 char license[1200] = "MIT License\n"
 "\n"
 "Copyright (c) 2015 Trey Jenkins\n"
@@ -277,6 +282,8 @@ void kmain(multiboot_info_t *mbd, unsigned int magic, uint32 init_esp0) {
 	do_init("Detecting and initializing PCI devices... ", init_pci());
 	do_init("Initializing syscalls... ", init_syscalls());
 	do_init("Initializing multitasking and setting up the kernel task... ", init_tasking(init_esp0));
+
+	//printk("TextOS Version: %s\n", trim(MACRO(BUILDID)));
 
 	GetCPUVendor();
 	GetCPUName();

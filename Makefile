@@ -11,7 +11,10 @@ PREFIX = /usr/local/cross
 GCCINC = $(PREFIX)/lib/gcc/i586-pc-TextOS/4.9.2/include
 TOOLCHAININC = $(PREFIX)/i586-pc-TextOS/include
 
-BUILDID = $(shell tar -cf - src | md5sum | awk '{print toupper($$1)}')
+#BUILDID = $(shell tar -cf - src | md5sum | awk '{print toupper($$1)}')
+BUILDID = $(shell cat build.txt)
+$(shell echo $(BUILDID)+1 | bc > build.txt)
+
 #BUILDID = "12ABCDEF"
 
 CC = ccache i586-pc-TextOS-gcc
@@ -52,14 +55,14 @@ all: $(OBJFILES)
 	#	make -C $$prog; \
 	#done
 	@$(LD) -T linker-kernel.ld -o kernel.bin ${OBJFILES}
-	@strip kernel.bin
+	#@strip kernel.bin
 	@cp kernel.bin isofiles/boot
 	@set -e; for prog in $(USERSPACEPROG); do \
 		make -C $$prog; \
 	done
-	@set -e; if [ ! -f "initrd/bin/lua" ]; then \
-		cd contrib && bash lua.sh ; cd ..; \
-	fi
+	#@set -e; if [ ! -f "initrd/bin/lua" ]; then \
+	#	cd contrib && bash lua.sh ; cd ..; \
+	#fi
 #	@/opt/local/bin/ctags -R *
 	@if [ -f "initrd/bin/eshell" ]; then \
 		mv initrd/bin/eshell initrd/bin/sh; \

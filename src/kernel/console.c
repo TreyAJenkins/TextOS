@@ -395,8 +395,9 @@ void update_statusbar(void) {
 
 	//print the build ID and CPUID
 	if ((t.second / 10) % 2) {
-		sprintf(buf, "%s", MACRO(BUILDID));
-		puts_status(24, buf);
+		int size = strlen(trim(MACRO(BUILDID))) + strlen("TextOS Version: ");
+		sprintf(buf, "TextOS Version: %s", MACRO(BUILDID));
+		puts_status(40-(size/2), buf);
 	} else {
 		int size = strlen(trim(CPUName));
 		sprintf(buf, "%s", trim(CPUName));

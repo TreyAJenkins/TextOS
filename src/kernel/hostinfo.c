@@ -6,7 +6,7 @@
 #include <stdint.h>
 
 char CPUVendor[13];
-char CPUName[33] = {0};
+char CPUName[49] = {0};
 double CPUSpeed;
 
 void GetCPUVendor(void) {
@@ -26,11 +26,11 @@ void GetCPUVendor(void) {
 void GetCPUName(void) {
     unsigned long extended, eax, ebx, ecx, edx, unused;
     __cpuid(0x80000000, extended, unused, unused, unused);
-    CPUName[33] = '\0';
+    //CPUName[49] = '\0';
     int cpp = 0;
     if(extended >= 0x80000002) {
         unsigned int k;
-        for(k = 0x80000002; k <= 0x80000003; k++) {
+        for(k = 0x80000002; k <= 0x80000004; k++) {
             __cpuid(k, eax, ebx, ecx, edx);
             //printk ("EAX: %x\nEBX: %x\nECX: %x\nEDX: %x\n", eax, ebx, ecx, edx);
 

@@ -55,7 +55,7 @@ all: $(OBJFILES)
 	#	make -C $$prog; \
 	#done
 	@$(LD) -T linker-kernel.ld -o kernel.bin ${OBJFILES}
-	#@strip kernel.bin
+	@strip kernel.bin
 	@cp kernel.bin isofiles/boot
 	@set -e; for prog in $(USERSPACEPROG); do \
 		make -C $$prog; \

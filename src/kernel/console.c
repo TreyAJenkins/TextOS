@@ -371,9 +371,9 @@ void update_statusbar(void) {
 	puts_status(0, "[TextOS]");
 
 	// Show the VC number
-	char buf[33] = {0};
+	char buf[48] = {0};
 	sprintf(buf, "VC%u", current_console_number + 1); // convert to 1-indexed
-	puts_status(12, buf);
+	puts_status(12, trim(buf));
 
 	int bstate = 0;
 
@@ -396,7 +396,7 @@ void update_statusbar(void) {
 	//print the build ID and CPUID
 	if ((t.second / 10) % 2) {
 		int size = strlen(trim(MACRO(BUILDID))) + strlen("TextOS Version: ");
-		sprintf(buf, "TextOS Version: %s", MACRO(BUILDID));
+		sprintf(buf, "TextOS Version: %s", trim(MACRO(BUILDID)));
 		puts_status(40-(size/2), buf);
 	} else {
 		int size = strlen(trim(CPUName));

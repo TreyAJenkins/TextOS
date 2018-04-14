@@ -69,21 +69,33 @@ const char* ReadConfig(char* key) {
 char method[64] = {0};
 char data[1024] = {0};
 int flagup = 0;
+int react = 0;
 int callerid;
 char callername[64];
 
-void authenticate( void jmp(void) , char* caller, char* message) {
+void authenticate( void jmp(char), char* message) {
     console_t *old = current_console;
 
     console_t *virt = virtual_consoles[4];
     console_switch(virt);
 
 
-    char buf[80] = {0};
-    sprintf(buf, "TSA: %s [%i] -> %s\n", callername, callerid, message);
+    //char buf[80] = {0};
+    //sprintf(buf, "TSA: %s [%i] -> %s\n", callername, callerid, message);
 
-    msgboxc(RED, RED, WHITE, "SAMPLE MESSAGE");
-    //sleep(5000);
+    printk("Allow \"%s\" (%i) to call '%s' in kernel?\n", callername, callerid, message);
+    printk("[y/N] > ");
+
+    unsigned char ch = getchar();
+    if (ch == 'y' || ch == 'Y') {
+        react = 1;
+        jmp(data);
+    } else {
+        react = 2;
+    }
+
+    //msgboxc(RED, RED, WHITE, "SAMPLE MESSAGE");
+    ///sleep(5000);
     //msgboxb(RED, BLACK, 1000, 5, BLACK, WHITE, trim(buf));
 
     //sleep(5000);
@@ -99,6 +111,7 @@ int dropbox(char* nmethod, char* ndata) {
     }
     //printk("%s\n", nmethod);
     sprintf(method, "%s", nmethod);
+    sprintf(data, "%s", ndata);
     //printk("%s\n", method);
     //strncpy(method, nmethod, 64);
     //strncpy(data, ndata, 1024);
@@ -106,7 +119,15 @@ int dropbox(char* nmethod, char* ndata) {
     callerid = curtk->id;
     strcpy(callername, curtk->name);
     flagup = 1;
-    return 0;
+
+    while (react == 0) {
+        sleep(500);
+    }
+
+    int reaction = react-1;
+    react = 0;
+
+    return reaction;
 }
 
 void TSA(void) {
@@ -125,11 +146,16 @@ void TSA(void) {
             printk("DATA RECEIVED [%s] FROM %s (%i)\n", method, callername, callerid);
             if (strcmp(trim(method), "PANIC") == 0) {
                 //printk("PANIC!!");
-                authenticate(panic, "TEST", "PANIC");
+                authenticate(panic, "PANIC");
                 //panic("TSA TEST");
                 //msgbox(RED, WHITE, BLACK, "TEXTOS TSA");
+            } else if (strcmp(trim(method), "PRINTK") == 0) {
+                printk("%s\n", data);
+                react = 1;
             }
             flagup = 0;
+        } else {
+            sleep(500);
         }
     }
 	return 0;

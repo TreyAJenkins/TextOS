@@ -842,9 +842,14 @@ void msgboxc(int bgcolor, int fgcolor, int tcolor, const char* msg) {
 	while (promptReturn == -1) {
 		if (promptReturn == 1) {
 			return 1;
+			printk("A\n");
+			//redraw_screen();
 		} else if (promptReturn == 2) {
 			return 0;
-		} else if (promptReturn == 3) {
+			printk("B\n");
+			//redraw_screen();
+		} else {
+			//printk("[%i]", promptReturn);
 			msgboxc( bgcolor,  fgcolor,  tcolor, msg);
 		}
 	}

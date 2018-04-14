@@ -43,7 +43,7 @@ Format the partition as Fat32
 ```
 sudo mkdosfs -F32 -I /dev/mapper/loop0p1
 ```
-Deattach the disk image
+Detach the disk image
 ```
 sudo kpartx -d disk.img
 ```

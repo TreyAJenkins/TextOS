@@ -1,0 +1,9 @@
+Requirements:
+gcc
+nasm
+mkisofs
+MPC MPFR GMP libs (lib{mpc,mpfr,gmp}-dev)
+Automake 1.12.x or OLDER
+texinfo
+make
+libncurses5-dev

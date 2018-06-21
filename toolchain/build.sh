@@ -83,7 +83,7 @@ if [[ $DL -eq 1 ]]; then
 		fi
 	fi
 
-		if [[ ! -f "newlib-1.20.0.tar.gz" ]]; then 
+		if [[ ! -f "newlib-1.20.0.tar.gz" ]]; then
 			wget 'ftp://sources.redhat.com/pub/newlib/newlib-1.20.0.tar.gz' || err
 		fi
 
@@ -130,9 +130,9 @@ echo Building binutils...
 echo
 make -j8 all || err
 
-echo 
+echo
 echo Installing binutils...
-echo 
+echo
 make install || err
 
 cd ..
@@ -144,7 +144,7 @@ cd gcc-4.9.2
 patch -p1 < ../patches/gcc-4.9.2-TextOS.patch #|| err
 cd ..
 
-echo 
+echo
 echo Configuring GCC...
 echo
 cd build-gcc
@@ -156,7 +156,7 @@ echo
 make -j8 all-gcc || err
 make -j8 all-target-libgcc || err
 
-echo 
+echo
 echo Installing GCC and libgcc...
 echo
 make install-gcc || err
@@ -203,8 +203,10 @@ export CFLAGS_FOR_BUILD="-O0 -gstabs+"
 
 # These MUST point to files from automake 1.12.x OR OLDER!
 # Newlib unfortunately requires features that were removed in 1.13.
-export AUTOMAKE=$PREFIX/../bin/automake
-export ACLOCAL=$PREFIX/../bin/aclocal
+#export AUTOMAKE=$PREFIX/../bin/automake
+#export ACLOCAL=$PREFIX/../bin/aclocal
+export AUTOMAKE=/usr/bin/automake
+export ACLOCAL=/usr/bin/aclocal
 
 echo
 echo Patching Newlib...
@@ -216,7 +218,7 @@ cp -Rf ../patches/TextOS/* newlib/libc/sys/TextOS/ || err
 #cp ../patches/TextOS/getreent.c newlib/libc/reent/getreent.c || err # I'm not a fan of doing this!
 
 cd newlib/libc/sys
-autoconf2.64 || err
+autoconf || err
 cd TextOS
 autoreconf || err
 cd ../../../..
@@ -231,7 +233,7 @@ cd build-newlib
 echo
 echo Building Newlib...
 echo
-make -j8 || err
+make || err
 
 echo
 echo Installing Newlib...

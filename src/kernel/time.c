@@ -77,6 +77,13 @@ static uint8 rtc_get_reg(uint8 reg) {
 #define REG_SECOND 0x00
 #define REG_STATUS_B 0xb
 
+
+int TZoffset = 0;
+
+void SetTZ(int offset) {
+	TZoffset = offset;
+}
+
 static void rtc_get_raw(Time *t) {
 	assert(t != NULL);
 
@@ -163,6 +170,34 @@ void get_time(Time *t) {
 	// OK, we should have a non-corrupt representation of the current time now,
 	// even if the RTC happened to update mid-reading. Reformat it.
 	rtc_reformat(t);
+
+	static const int DIM[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+
+	t->hour += TZoffset;
+	if (t->hour < 0) {
+		t->day--;
+		if (t->day < 1) {
+			t->month--;
+			if (t->month < 1) {
+				t->year --;
+				t->month = 12;
+			}
+			t->day = DIM[t->month - 1];
+		}
+		t->hour %= 24;
+	} else if (t->hour > 23) {
+		t->day++;
+		if (t->day > DIM[t->month]) {
+			t->day = 1;
+			t->month++;
+			if (t->month > 12) {
+				t->year++;
+				t->month = 1;
+			}
+		}
+		t->hour %= 24;
+	}
 
 	// ... that's it!
 }

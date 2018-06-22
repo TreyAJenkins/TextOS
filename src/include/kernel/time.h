@@ -5,6 +5,7 @@
 #include <sys/time.h>
 
 void get_time(Time *);
+void SetTZ(int offset);
 time_t kern_mktime(Time *); // Note that the same rules as mktime() uses apply, e.g. month is 0 to 11, year is "years since 1900" etc.
 time_t kern_time(void);
 

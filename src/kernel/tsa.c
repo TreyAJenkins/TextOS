@@ -156,7 +156,10 @@ void TSA(void) {
             } else if (strcmp(trim(method), "PRINTK") == 0) {
 				if (authenticate("PRINTK"))
 					printk("%s\n", data);
-            } else {
+			} else if (strcmp(trim(method), "SetTimeOffset") == 0) {
+				if (authenticate("SetTimeOffset"))
+					SetTZ(atoi(data));
+			} else {
 				react = 3;
 			}
             flagup = 0;

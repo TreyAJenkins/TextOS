@@ -73,7 +73,7 @@ int react = 0;
 int callerid;
 char callername[64];
 
-void authenticate( void jmp(char), char* message) {
+int authenticate(char* message) {
     console_t *old = current_console;
 
     console_t *virt = virtual_consoles[4];
@@ -89,7 +89,6 @@ void authenticate( void jmp(char), char* message) {
     unsigned char ch = getchar();
     if (ch == 'y' || ch == 'Y') {
         react = 1;
-        jmp(data);
     } else {
         react = 2;
     }
@@ -101,6 +100,11 @@ void authenticate( void jmp(char), char* message) {
     //sleep(5000);
 
     console_switch(old);
+
+		if (react == 1)
+			return 1;
+		else
+			return 0;
 
     //jmp();
 }
@@ -121,7 +125,7 @@ int dropbox(char* nmethod, char* ndata) {
     flagup = 1;
 
     while (react == 0) {
-        sleep(500);
+        sleep(16);
     }
 
     int reaction = react-1;
@@ -146,13 +150,15 @@ void TSA(void) {
             printk("DATA RECEIVED [%s] FROM %s (%i)\n", method, callername, callerid);
             if (strcmp(trim(method), "PANIC") == 0) {
                 //printk("PANIC!!");
-                authenticate(panic, "PANIC");
-                //panic("TSA TEST");
+                if (authenticate("PANIC"))
+                	panic("TSA PANIC");
                 //msgbox(RED, WHITE, BLACK, "TEXTOS TSA");
             } else if (strcmp(trim(method), "PRINTK") == 0) {
-                printk("%s\n", data);
-                react = 1;
-            }
+				if (authenticate("PRINTK"))
+					printk("%s\n", data);
+            } else {
+				react = 3;
+			}
             flagup = 0;
         } else {
             sleep(500);

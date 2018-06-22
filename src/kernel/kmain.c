@@ -227,6 +227,10 @@ void kmain(multiboot_info_t *mbd, unsigned int magic, uint32 init_esp0) {
 	GetCPUName();
 	printk("Processor: %s (%s)\n", trim(CPUName), trim(CPUVendor));
 
+    Time t;
+    get_time(&t);
+    printk("%d/%d/%d %02d:%02d:%02d\n", t.month, t.day, t.year, t.hour, t.minute, t.second);
+    printk("%u\n", (unsigned) kern_mktime(&t));
 	//if (!quiet)
 	//GetCPUSpeed();
 	//printk("CPU Speed: %d\n", GetCPUSpeed());

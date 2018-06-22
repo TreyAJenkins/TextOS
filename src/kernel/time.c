@@ -103,7 +103,7 @@ static void rtc_reformat(Time *t) {
 	 */
 	uint8 is_bcd, is_24_hour;
 	is_bcd     = (regb & 4) ? 0 : 1; /* [sic] */
-	is_24_hour = (regb & 2) ? 1 : 0; 
+	is_24_hour = (regb & 2) ? 1 : 0;
 
 	uint8 time_is_pm = 0;
 

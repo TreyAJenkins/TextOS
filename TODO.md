@@ -4,3 +4,4 @@
 - Kernel modules
 - Expand UAL
 - Ramdisk support
+- Dynamic library implementation
